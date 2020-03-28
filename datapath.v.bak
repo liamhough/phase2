@@ -1,0 +1,202 @@
+module Datapath(
+	clk,
+	clr,
+
+	
+	// Control Signals
+	
+	R0out, R0in,
+	R1out, R1in,
+	R2out, R2in,
+	R3out, R3in,
+	R4out, R4in,
+	R5out, R5in,
+	R6out, R6in,
+	R7out, R7in,
+	R8out, R8in,
+	R9out, R9in,
+	R10out, R10in,
+	R11out, R11in,
+	R12out, R12in,
+	R13out, R13in,
+	R14out, R14in,
+	R15out, R15in,
+	HIout, HIin
+	LOout, LOin
+	IRout,
+	PCout, PCin,
+	IRin,
+	PCval, // for testbenches
+	Zhighout, Zlowout, Zin, //64 bit
+	MARin,
+	MDRin, MDRout,
+	Read, //for MDR
+	Mdatain, //32 bit
+	
+	
+	// Outputs for testing?
+	R0,
+	R1,
+	R2,
+	R3,
+	R4,
+	R5,
+	R6,
+	R7,
+	R8,
+	R9,
+	R10,
+	R11,
+	R12,
+	R13,
+	R14,
+	R15,
+	HI,
+	LO,
+	IR,
+	Z,
+	BusMuxOut
+	);
+	
+	//define inputs
+	input clk;
+	input clr;
+	input 	R0out, R0in,
+	R1out, R1in,
+	R2out, R2in,
+	R3out, R3in,
+	R4out, R4in,
+	R5out, R5in,
+	R6out, R6in,
+	R7out, R7in,
+	R8out, R8in,
+	R9out, R9in,
+	R10out, R10in,
+	R11out, R11in,
+	R12out, R12in,
+	R13out, R13in,
+	R14out, R14in,
+	R15out, R15in,
+	HIout, HIin
+	LOout, LOin;
+	
+	//define outputs
+	output [31:0] R0;
+	output [31:0]  R1;
+	output [31:0]  R2;
+	output [31:0]  R3;
+	output [31:0]  R4;
+	output [31:0]  R5;
+	output [31:0]  R6;
+	output [31:0]  R7;
+	output [31:0]  R8;
+	output [31:0]  R9;
+	output [31:0]  R10;
+	output [31:0]  R11;
+	output [31:0]  R12;
+	output [31:0]  R13;
+	output [31:0]  R14;
+	output [31:0]  R15;
+	output [31:0]  HI;
+	output [31:0]  LO;
+	output [31:0]  IR;
+	output [63:0]  Z;
+	output [31:0]  BusMuxOut;
+	
+	
+	
+	
+	
+	//define internal wires/signals used by components
+	
+	wire [31:0] BusMuxIn_R0;
+	wire [31:0] BusMuxIn_R1;
+	wire [31:0] BusMuxIn_R2;
+	wire [31:0] BusMuxIn_R3;
+	wire [31:0] BusMuxIn_R4;
+	wire [31:0] BusMuxIn_R5;
+	wire [31:0] BusMuxIn_R6;
+	wire [31:0] BusMuxIn_R7;
+	wire [31:0] BusMuxIn_R8;
+	wire [31:0] BusMuxIn_R9;
+	wire [31:0] BusMuxIn_R10;
+	wire [31:0] BusMuxIn_R11;
+	wire [31:0] BusMuxIn_R12;
+	wire [31:0] BusMuxIn_R13;
+	wire [31:0] BusMuxIn_R14;
+	wire [31:0] BusMuxIn_R15;
+	wire [31:0] BusMuxIn_HI;
+	wire [31:0] BusMuxIn_LO;
+	wire [31:0] BusMuxIn_ZHI;
+	wire [31:0] BusMuxIn_ZLO;
+	wire [31:0] BusMuxIn_PC;
+	wire [31:0] BusMuxIn_MDR;
+	wire [31:0] BusMuxIn_PORT_IN;
+	wire [31:0] BusMuxIn_C_SIGN_EXTENDED;
+	
+	wire [31:0] BusMuxSelector;
+	
+	wire [31:0] BusMuxOut;
+	
+	wire clk;
+	wire clr;
+	
+	
+	
+	
+	
+	//copy for all 16 registers
+	register R0_instance(.clk(clk), .clr(clr), .write(R0in), .D(BusMuxOut), .Q(BusMuxIn_R0));
+	register R1_instance(.clk(clk), .clr(clr), .write(R1in), .D(BusMuxOut), .Q(BusMuxIn_R1));
+	register R2_instance(.clk(clk), .clr(clr), .write(R2in), .D(BusMuxOut), .Q(BusMuxIn_R2));
+	register R3_instance(.clk(clk), .clr(clr), .write(R3in), .D(BusMuxOut), .Q(BusMuxIn_R3));
+	register R4_instance(.clk(clk), .clr(clr), .write(R4in), .D(BusMuxOut), .Q(BusMuxIn_R4));
+	register R5_instance(.clk(clk), .clr(clr), .write(R5in), .D(BusMuxOut), .Q(BusMuxIn_R5));
+	register R6_instance(.clk(clk), .clr(clr), .write(R6in), .D(BusMuxOut), .Q(BusMuxIn_R6));
+	register R7_instance(.clk(clk), .clr(clr), .write(R7in), .D(BusMuxOut), .Q(BusMuxIn_R7));
+	register R8_instance(.clk(clk), .clr(clr), .write(R8in), .D(BusMuxOut), .Q(BusMuxIn_R8));
+	register R9_instance(.clk(clk), .clr(clr), .write(R9in), .D(BusMuxOut), .Q(BusMuxIn_R9));
+	register R10_instance(.clk(clk), .clr(clr), .write(R10in), .D(BusMuxOut), .Q(BusMuxIn_R10));
+	register R11_instance(.clk(clk), .clr(clr), .write(R11in), .D(BusMuxOut), .Q(BusMuxIn_R11));
+	register R12_instance(.clk(clk), .clr(clr), .write(R12in), .D(BusMuxOut), .Q(BusMuxIn_R12));
+	register R13_instance(.clk(clk), .clr(clr), .write(R13in), .D(BusMuxOut), .Q(BusMuxIn_R13));
+	register R14_instance(.clk(clk), .clr(clr), .write(R14in), .D(BusMuxOut), .Q(BusMuxIn_R14));
+	register R15_instance(.clk(clk), .clr(clr), .write(R15in), .D(BusMuxOut), .Q(BusMuxIn_R15));
+	
+	register HI_instance(.clk(clk), .clr(clr), .write(HIin), .D(BusMuxOut), .Q(BusMuxIn_HI));
+	register LO_instance(.clk(clk), .clr(clr), .write(LOin), .D(BusMuxOut), .Q(BusMuxIn_LO));
+	register PC_instance(.clk(clk), .clr(clr), .write(PCin), .D(BusMuxOut), .Q(BusMuxIn_PC));
+	
+	bus bus_instance( //POSSIBLY define input/output before module
+	//binary_out, //S4 to S0 (5 bit binary signal out)
+	.encoder_in(BusMuxSelector), //32 bit input via registers and other signals
+	.bus_out(BusMuxOut),
+	.r0_in(BusMuxIn_R0),
+	.r1_in(BusMuxIn_R1),
+	.r2_in(BusMuxIn_R2),
+	.r3_in(BusMuxIn_R3),
+	.r4_in(BusMuxIn_R4),
+	.r5_in(BusMuxIn_R5),
+	.r6_in(BusMuxIn_R6),
+	.r7_in(BusMuxIn_R7),
+	.r8_in(BusMuxIn_R8),
+	.r9_in(BusMuxIn_R9),
+	.r10_in(BusMuxIn_R10),
+	.r11_in(BusMuxIn_R11),
+	.r12_in(BusMuxIn_R12),
+	.r13_in(BusMuxIn_R13),
+	.r14_in(BusMuxIn_R14),
+	.r15_in(BusMuxIn_R15),
+	.hi_in(BusMuxIn_HI),
+	.lo_in(BusMuxIn_LO),
+	.zhi_in(BusMuxIn_ZHI),
+	.zlo_in(BusMuxIn_ZLO),
+	.pc_in(BusMuxIn_PC),
+	.mdr_in(BusMuxIn_MDR),
+	.port_in(BusMuxIn_PORT_IN),
+	.c_sign_extended_in(BusMuxIn_C_SIGN_EXTENDED)
+	);
+	
+	
+	
+	

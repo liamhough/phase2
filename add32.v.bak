@@ -1,0 +1,29 @@
+module add32(input1, input2, output);
+
+	input [31:0] input1;
+	input [31:0] input2;
+	output [63:0] output;
+	
+	begin
+		output = {input1[30:0], input1[31]};
+	end
+	
+endmodule		
+		
+		
+		
+		for (i=0; i < 32; i=i+1)
+										begin : add_loop
+											if (i ==0)
+												half_adder(A[0], B[0], C[0], carry[0]);
+											else
+												full_adder(A[i], B[i], carry[i-1], C[i], carry[i]);
+									end
+										C[32] = carry[31];
+								//endgenerate		
+								//sign-extend remaining bits
+									for (i=33;i<64;i=i+1)
+										begin
+											C[i] = C[32];
+										end
+							end

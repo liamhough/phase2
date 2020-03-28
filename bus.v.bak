@@ -1,0 +1,82 @@
+module 32to5encoder(
+	//binary_out, //S4 to S0 (5 bit binary signal out)
+	encoder_in, //32 bit input via registers and other signals
+	bus_in
+	);
+	input [31:0] encoder_in;
+	output bus_out;
+	input [31:0] a [31:0] bus_in;
+	wire [4:0] binary_out;
+
+	always @ encoder_in
+	begin
+		binary_out = 0;
+		case(encoder_in)
+			32 'h0000002 : binary_out = 1;
+			32 'h0000004 : binary_out = 2;
+			32 'h0000008 : binary_out = 3;
+			32 'h0000010 : binary_out = 4;
+			32 'h0000020 : binary_out = 5;
+			32 'h0000040 : binary_out = 6;
+			32 'h0000080 : binary_out = 7;
+			32 'h0000100 : binary_out = 8;
+			32 'h0000200 : binary_out = 9;
+			32 'h0000400 : binary_out = 10;
+			32 'h0000800 : binary_out = 11;
+			32 'h0001000 : binary_out = 12;
+			32 'h0002000 : binary_out = 13;
+			32 'h0004000 : binary_out = 14;
+			32 'h0008000 : binary_out = 15;
+			32 'h0010000 : binary_out = 16;
+			32 'h0020000 : binary_out = 17;
+			32 'h0040000 : binary_out = 18;
+			32 'h0080000 : binary_out = 19;
+			32 'h0100000 : binary_out = 20;
+			32 'h0200000 : binary_out = 21;
+			32 'h0400000 : binary_out = 22;
+			32 'h0800000 : binary_out = 23;
+			32 'h1000000 : binary_out = 24;
+			32 'h2000000 : binary_out = 25;
+			32 'h4000000 : binary_out = 26;
+			32 'h8000000 : binary_out = 27;
+			32 'h10000000 : binary_out = 28;
+			32 'h20000000 : binary_out = 29;
+			32 'h40000000 : binary_out = 30;
+			32 'h80000000 : binary_out = 31;
+		endcase;
+		case(binary_out)
+			0 : bus_out = bus_in[0];
+			1 : bus_out = bus_in[1];
+			2 : bus_out = bus_in[2];
+			3 : bus_out = bus_in[3];
+			4 : bus_out = bus_in[4];
+			5 : bus_out = bus_in[5];
+			6 : bus_out = bus_in[6];
+			7 : bus_out = bus_in[7];
+			8 : bus_out = bus_in[8];
+			9 : bus_out = bus_in[9];
+			10 : bus_out = bus_in[10];
+			11 : bus_out = bus_in[11];
+			12 : bus_out = bus_in[12];
+			13 : bus_out = bus_in[13];
+			14 : bus_out = bus_in[14];
+			15 : bus_out = bus_in[15];
+			16 : bus_out = bus_in[16];
+			17 : bus_out = bus_in[17];
+			18 : bus_out = bus_in[18];
+			19 : bus_out = bus_in[19];
+			20 : bus_out = bus_in[20];
+			21 : bus_out = bus_in[21];
+			22 : bus_out = bus_in[22];
+			23 : bus_out = bus_in[23];
+			24 : bus_out = bus_in[24];
+			25 : bus_out = bus_in[25];
+			26 : bus_out = bus_in[26];
+			27 : bus_out = bus_in[27];
+			28 : bus_out = bus_in[28];
+			29 : bus_out = bus_in[29];
+			30 : bus_out = bus_in[30];
+			31 : bus_out = bus_in[31];
+		endcase;
+	end
+endmodule;

@@ -1,0 +1,274 @@
+/* OP CODES
+* Add - 00011
+* Sub - 00100
+* Shr - 00101 
+* Shl - 00110
+* RotR- 00111
+* RotL- 01000
+* AND - 01001
+* OR  - 01010
+*
+* Mul - 01110
+* Div - 01111
+* Neg - 10000
+* NOT - 10001
+*
+* Nop - 11001
+* Halt- 11010
+*/
+
+module alu(A, B, C, control);
+	
+	input [31:0] A;
+	input [31:0] B;
+	input [4:0] control;
+	output [63:0] C;
+	
+	wire [31:0] A;
+	reg [63:0] carry; //made 64 bit to accomodate multiply
+	wire [31:0] B;
+	reg [63:0] C;
+	reg [31:0] temp; //-A
+	reg [31:0] tempA;
+	reg [63:0] invM;
+	reg [2:0] booth [15:0];
+	reg [31:0] pp;
+	reg [63:0] spp [15:0] ;
+	
+	
+	always @ *
+	begin : all
+		integer i;
+		integer j;
+		case(control)
+			5 'b00011 : begin : add//add
+									for (i=0; i < 32; i=i+1)
+										begin : add_loop
+											if (i ==0)
+												half_adder(A[0], B[0], C[0], carry[0]);
+											else
+												full_adder(A[i], B[i], carry[i-1], C[i], carry[i]);
+									end
+										C[32] = carry[31];
+								//endgenerate		
+								//sign-extend remaining bits
+									for (i=33;i<64;i=i+1)
+										begin
+											C[i] = C[32];
+										end
+							end
+			5 'b00100 : begin : sub //SUBTRACTION
+								//not (part of negate)
+								for (i = 0; i < 32; i=i+1)
+								begin
+									tempA[i] = ~A[i];
+								end
+									
+
+
+								//add 1 (part of negate)
+								for(i=0; i < 32; i=i+1)
+									begin : sub_loop
+										if (i ==0)
+											half_adder(tempA[0], 1'b1, temp[0], carry[0]);
+										else
+											full_adder(tempA[i], 1'b0, carry[i-1], temp[i], carry[i]);
+								end
+									
+									//add
+									for(i=0; i < 32; i=i+1)
+									begin : sub_loop2
+										if (i ==0)
+											half_adder(temp[0], B[0], C[0], carry[0]);
+										else
+											full_adder(temp[i], B[i], carry[i-1], C[i], carry[i]);
+									end
+									C[32] = carry[31];
+									
+										
+								//endgenerate
+								
+							end 
+			5 'b00101 : begin : shr//Shift right
+								for( i=0; i < 32; i=i+1)
+								begin : shr_loop
+									if(i != 31)		
+										C[i] = A[i+1];
+									else
+										C[i] = 0;
+								end	
+								for (i=32;i<64;i=i+1)
+										begin
+											C[i] = C[31];
+										end
+							end
+			5 'b00110 : begin : shL//shift left
+								for(i=0; i < 32; i=i+1)
+								begin : shl_loop
+									if(i != 0)		
+										C[i] = A[i-1];
+									else
+										C[i] = 0;
+								end
+								for (i=32;i<64;i=i+1)
+										begin
+											C[i] = C[31];
+										end
+							end	
+			5 'b00111 : begin : rotR //rotate right
+								for( i=0; i < 32; i=i+1)
+								begin : rotR_loop
+									if(i == 31)		
+										C[31] = A[0];
+									else
+										C[i] = A[i+1];
+								end	
+								for (i=32;i<64;i=i+1)
+										begin
+											C[i] = C[31];
+										end
+								
+							end
+							
+			5 'b01000 : begin : rotL//rotate left
+								for( i=0; i < 32; i=i+1)
+								begin : rotL_loop
+									if(i == 0)		
+										C[0] = A[31];
+									else
+										C[i] = A[i-1];
+								end	
+								for (i=32;i<64;i=i+1)
+										begin
+											C[i] = C[31];
+										end
+							end 
+			5 'b01001 : begin //AND
+								C = A&B;
+							end
+			5 'b01010 : begin //OR
+								C = A|B; 
+							end
+			5 'b01110 : begin //multiply
+								//M = A
+								//Q = B
+								//bit-pair = booth(B)
+								for (i = 0; i < 32; i=i+1)
+								begin : negate_mult
+									tempA[i] = ~A[i];
+								end
+								for(i=0; i < 32; i=i+1)
+								begin : negate_loop
+									if (i ==0)
+										half_adder(tempA[0], 1'b1, invM[0], carry[0]);
+									else
+										full_adder(tempA[i], 1'b0, carry[i-1], invM[i], carry[i]);
+								end
+								invM[32] = carry[31];
+								//sign-extend remaining bits
+								for (i=33;i<64;i=i+1)
+								begin
+									invM[i] = C[32];
+								end
+								//create booth algorithm values
+								booth[0] = {B[1],B[0],1'b0};
+								for (i=1;i<16;i=i+1)
+								begin
+									booth[i] = {B[2*i+1], B[2*i], B[2*i-1]};
+								end
+								for (i=0;i<16;i=i+1)
+								begin
+								//interpret booth algorithm values as -2M, -M, 0, M, or 2M
+									case(booth[i])
+										3'b001, 3'b010 : pp = A;
+										3'b011 : pp = {A,1'b0};
+										3'b100 : pp = {invM,1'b0};
+										3'b101, 3'b110 : pp = invM;
+										default : pp = 0;
+									endcase
+									spp[i] = $signed(pp);
+									for (j=0;j<i;j=j+1)
+									begin
+										spp[i] = {spp[i],2'b00};
+									end
+									C = spp[0];
+									for (i = 1;i<16;i=i+1)
+									begin	
+										for (j=0; j < 64; j=j+1)
+										begin : add_loop
+											if (j ==0)
+												half_adder(C[0], spp[i][0], C[0], carry[0]);
+											else
+												full_adder(C[j], spp[i][j], carry[j-1], C[j], carry[j]);
+										end
+									end	
+								end
+							end
+			5 'b01111 : begin //divide
+								C = A/B;
+								
+							end 
+			5 'b10000 : begin //negate
+								for (i = 0; i < 32; i=i+1)
+								begin : negate
+									tempA[i] = ~A[i];
+								end
+									
+								
+
+								for(i=0; i < 32; i=i+1)
+									begin : negate_loop
+										if (i ==0)
+											half_adder(tempA[0], 1'b1, C[0], carry[0]);
+										else
+											full_adder(tempA[i], 1'b0, carry[i-1], C[i], carry[i]);
+									end
+									C[32] = carry[31];
+								//sign-extend remaining bits
+									for (i=33;i<64;i=i+1)
+										begin
+											C[i] = C[32];
+										end
+								
+							end
+			5 'b10001 : begin //NOT
+								//generate
+									//genvar i;
+									for (i = 0; i < 32; i=i+1)
+									begin : not_loop
+										C[i] = ~A[i];
+									
+									end
+								//endgenerate
+							end
+			5 'b11001 : begin //NOP
+								//generate
+									//genvar i;
+									
+								//endgenerate
+							end
+			//default 		://logic for default
+		endcase
+		//endgenerate
+		end
+
+	
+
+	task half_adder; //half adder with re-assigned input
+		input x,y;
+		output s,c;
+		begin: ha
+			s <= x^y;
+			c <= x&y;
+		end
+	endtask // half adder
+
+	task full_adder; //full adder with re-assigned input
+		input x,y,c_in;
+		output s,c_out;
+		begin: fa
+			s = (x^y) ^ c_in;
+			c_out = (y&c_in)| (x&y) | (x&c_in);
+		end
+	endtask // full_adder
+endmodule
